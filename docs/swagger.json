@@ -12,6 +12,106 @@
     "host": "localhost:9090",
     "basePath": "/",
     "paths": {
+        "/express/create": {
+            "post": {
+                "description": "这是一个新增订单接口",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "快递订单"
+                ],
+                "summary": "新增订单",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "快递单号",
+                        "name": "code",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "收货地址",
+                        "name": "address",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "收货日期",
+                        "name": "receive_date",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "订单费用",
+                        "name": "price",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "取件码",
+                        "name": "receive_code",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "创建人 id",
+                        "name": "create_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "创建人头像",
+                        "name": "create_img",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/express/info": {
+            "get": {
+                "description": "这是一个订单详情接口",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "快递订单"
+                ],
+                "summary": "订单详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "订单 id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/express/list": {
             "get": {
                 "description": "这是一个订单列表接口",
@@ -45,8 +145,14 @@
                     },
                     {
                         "type": "string",
-                        "description": "接单状态",
-                        "name": "receiver",
+                        "description": "接单人",
+                        "name": "receiver_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "创建人",
+                        "name": "create_id",
                         "in": "query"
                     }
                 ],

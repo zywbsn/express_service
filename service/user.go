@@ -47,7 +47,6 @@ func UpdateUserInfo(c *gin.Context) {
 		Phone:     phone,
 		Mail:      mail,
 	}
-	fmt.Println("info:", info)
 	err := models.DB.Model(new(models.UserList)).Where("identity = ?", identity).
 		Updates(info).Error
 	if err != nil {
@@ -107,7 +106,6 @@ func Login(c *gin.Context) {
 		c.JSON(400, err.Error())
 		return
 	}
-	fmt.Println(wxLoginResp)
 	token, err := helper.GenerateToken(wxLoginResp.OpenId)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{

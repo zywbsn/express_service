@@ -8,6 +8,74 @@ info:
   title: 快递代取 API
   version: 1.0.1
 paths:
+  /express/create:
+    post:
+      description: 这是一个新增订单接口
+      parameters:
+      - description: 快递单号
+        in: formData
+        name: code
+        required: true
+        type: string
+      - description: 收货地址
+        in: formData
+        name: address
+        required: true
+        type: string
+      - description: 收货日期
+        in: formData
+        name: receive_date
+        required: true
+        type: string
+      - description: 订单费用
+        in: formData
+        name: price
+        required: true
+        type: string
+      - description: 取件码
+        in: formData
+        name: receive_code
+        required: true
+        type: string
+      - description: 创建人 id
+        in: formData
+        name: create_id
+        required: true
+        type: string
+      - description: 创建人头像
+        in: formData
+        name: create_img
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: 新增订单
+      tags:
+      - 快递订单
+  /express/info:
+    get:
+      description: 这是一个订单详情接口
+      parameters:
+      - description: 订单 id
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: 订单详情
+      tags:
+      - 快递订单
   /express/list:
     get:
       description: 这是一个订单列表接口
@@ -26,9 +94,13 @@ paths:
         in: query
         name: status
         type: integer
-      - description: 接单状态
+      - description: 接单人
         in: query
-        name: receiver
+        name: receiver_id
+        type: string
+      - description: 创建人
+        in: query
+        name: create_id
         type: string
       produces:
       - application/json
