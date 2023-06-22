@@ -96,6 +96,9 @@ func GetExpressDetail(c *gin.Context) {
 		})
 		return
 	}
+	info.CreateBy = GetName(info.CreateId)
+	info.CreateImg = GetImage(info.CreateId)
+	info.Receiver = GetName(info.ReceiverId)
 	c.JSON(http.StatusOK, gin.H{
 		"code": 200,
 		"data": map[string]interface{}{
@@ -114,7 +117,6 @@ func GetExpressDetail(c *gin.Context) {
 // @Param price formData string true "订单费用"
 // @Param receive_code formData string true "取件码"
 // @Param create_id formData string true "创建人 id"
-// @Param create_img formData string true "创建人头像"
 // @Produce application/json
 // @Success 200 {string} string
 func CreateExpress(c *gin.Context) {
@@ -124,20 +126,16 @@ func CreateExpress(c *gin.Context) {
 	Price, _ := strconv.Atoi(c.PostForm("price"))
 	ReceiveCode := c.PostForm("receive_code")
 	CreateId := c.PostForm("create_id")
-	CreateImg := c.PostForm("create_img")
-
-	userInfo := new(models.UserList)
-	models.DB.Where("identity = ?", CreateId).First(&userInfo)
 
 	data := &models.ExpressList{
-		CreateBy:    userInfo.Name,
+		CreateBy:    GetName(CreateId),
 		Code:        Code,
 		Address:     Address,
 		ReceiveDate: ReceiveDate,
 		Price:       Price,
 		ReceiveCode: ReceiveCode,
 		CreateId:    CreateId,
-		CreateImg:   CreateImg,
+		CreateImg:   GetImage(CreateId),
 	}
 	err := models.DB.Create(data).Error
 	if err != nil {
@@ -185,6 +183,15 @@ func GetExpressList(c *gin.Context) {
 		return
 	}
 
+	// 动态创建人和接单人姓名
+	for i := 0; i < len(list); i++ {
+		if list[i].ReceiverId != "" {
+			list[i].Receiver = GetName(list[i].ReceiverId)
+		}
+		list[i].CreateBy = GetName(list[i].CreateId)
+		list[i].CreateImg = GetImage(list[i].CreateId)
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"code": 200,
 		"data": map[string]interface{}{
@@ -192,4 +199,16 @@ func GetExpressList(c *gin.Context) {
 			"count": count,
 		},
 	})
+}
+
+func GetName(identity string) string {
+	// if identity != "" {
+	info, _ := models.GetUserInfo(identity)
+	return info.Name
+	// }
+	// return ""
+}
+func GetImage(identity string) string {
+	info, _ := models.GetUserInfo(identity)
+	return info.AvatarUrl
 }
