@@ -19,6 +19,11 @@ type ExpressList struct {
 	CreateImg   string `gorm:"column:create_img;type:varchar(255);" json:"create_img"`     // 创建人头像
 }
 
+func GetExpressDetail(id string) *gorm.DB {
+	tx := DB.Where("id = ?", id)
+	return tx
+}
+
 // 查询列表
 func GetExpressList(status int, receiverId, createId string) *gorm.DB {
 	tx := DB.Model(new(ExpressList))

@@ -12,6 +12,66 @@ import (
 )
 
 // @Tags 快递订单
+// @Summary 接单
+// @Description 这是一个接单接口
+// @Router /express/order [put]
+// @Param id query string true "订单 id"
+// @Param receiver_id query string true "接单人 id"
+// @Produce application/json
+// @Success 200 {string} string
+func TakeOrders(c *gin.Context) {
+	id := c.Query("id")
+	info := new(models.ExpressList)
+	tx := models.GetExpressDetail(id)
+	err := tx.First(&info).Error
+	if err == gorm.ErrRecordNotFound {
+		c.JSON(http.StatusOK, gin.H{
+			"code":    -1,
+			"error":   err.Error(),
+			"message": "订单不存在",
+		})
+		return
+	}
+
+	if info.Status == 1 {
+		c.JSON(http.StatusOK, gin.H{
+			"code":    -1,
+			"message": "该订单已被接单",
+		})
+		return
+	}
+
+	receiverId := c.Query("receiver_id")
+	_, err = models.GetUserInfo(receiverId)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"code":    -1,
+			"error":   err.Error(),
+			"message": "用户不存在",
+		})
+		return
+	}
+
+	info.Status = 1
+	info.ReceiverId = receiverId
+
+	err = tx.Updates(info).Error
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"code":    -1,
+			"error":   err.Error(),
+			"message": "接单失败",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"message": "接单成功",
+	})
+}
+
+// @Tags 快递订单
 // @Summary 订单详情
 // @Description 这是一个订单详情接口
 // @Router /express/info [get]

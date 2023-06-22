@@ -33,16 +33,16 @@ type WXLoginResp struct {
 // @Success 200 {string} string
 func UpdateUserInfo(c *gin.Context) {
 	identity := c.PostForm("identity")
-	avatar_url := c.PostForm("avatar_url")
+	avatarUrl := c.PostForm("avatar_url")
 	mail := c.PostForm("mail")
 	name := c.PostForm("name")
 	phone := c.PostForm("phone")
-	user_name := c.PostForm("user_name")
+	userName := c.PostForm("user_name")
 	password := c.PostForm("password")
 	info := &models.UserList{
 		Name:      name,
-		AvatarUrl: avatar_url,
-		UserName:  user_name,
+		AvatarUrl: avatarUrl,
+		UserName:  userName,
 		Password:  password,
 		Phone:     phone,
 		Mail:      mail,

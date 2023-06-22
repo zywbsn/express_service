@@ -14,6 +14,7 @@ func Router() *gin.Engine {
 		expressGroup.GET("/list", service.GetExpressList)   // 代取列表
 		expressGroup.GET("/info", service.GetExpressDetail) // 订单详情
 		expressGroup.POST("/create", service.CreateExpress) // 新建订单
+		expressGroup.PUT("/order", service.TakeOrders)      // 接单接口
 	}
 	/* ----- 订单相关路由组 ----- */
 
