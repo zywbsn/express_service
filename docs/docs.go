@@ -174,6 +174,42 @@ const docTemplate = `{
                 }
             }
         },
+        "/express/order": {
+            "put": {
+                "description": "这是一个接单接口",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "快递订单"
+                ],
+                "summary": "接单",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "订单 id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "接单人 id",
+                        "name": "receiver_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/upload": {
             "post": {
                 "description": "上传文件接口",

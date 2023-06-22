@@ -112,6 +112,30 @@ paths:
       summary: 订单列表
       tags:
       - 快递订单
+  /express/order:
+    put:
+      description: 这是一个接单接口
+      parameters:
+      - description: 订单 id
+        in: query
+        name: id
+        required: true
+        type: string
+      - description: 接单人 id
+        in: query
+        name: receiver_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: 接单
+      tags:
+      - 快递订单
   /upload:
     post:
       description: 上传文件接口
