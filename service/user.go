@@ -20,9 +20,9 @@ type WXLoginResp struct {
 }
 
 // @Tags 用户
-// @Summary 用户详情
-// @Description 用户详情接口
-// @Router /user/info [get]
+// @Summary 修改用户信息
+// @Description 修改用户信息接口
+// @Router /user/info [put]
 // @Param identity query  string true "用户唯一标识"
 // @Param avatar_url query  string false "头像"
 // @Param mail query  string false "电子邮箱"
@@ -99,10 +99,10 @@ func Login(c *gin.Context) {
 	code := c.PostForm("code")            //  获取 code
 	name := c.PostForm("name")            //  获取 name
 	avatarUrl := c.PostForm("avatar_url") //  获取 avatarUrl
-	fmt.Printf("code:%v", code)
 
 	// 根据code获取 openID 和 session_key
 	wxLoginResp, err := WXLogin(code)
+	fmt.Println("wxLoginResp:%v", wxLoginResp)
 	if err != nil {
 		c.JSON(400, err.Error())
 		return
