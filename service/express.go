@@ -12,6 +12,59 @@ import (
 )
 
 // @Tags 快递订单
+// @Summary 完成订单
+// @Description 这是一个完成订单接口
+// @Router /express/finish [put]
+// @Param id query string true "订单 id"
+// @Param receiver_id query string true "接单人 id"
+// @Produce application/json
+// @Success 200 {string} string
+func FinishOrder(c *gin.Context) {
+	id := c.Query("id")
+	receiverId := c.Query("receiver_id")
+	info := new(models.ExpressList)
+	tx := models.DB.Model(new(models.ExpressList)).Where("id = ? and receiver_id = ?", id, receiverId)
+	err := tx.First(&info).Error
+
+	if err == gorm.ErrRecordNotFound {
+		c.JSON(http.StatusOK, gin.H{
+			"code":    -1,
+			"error":   err.Error(),
+			"message": "订单不存在",
+		})
+		return
+	}
+
+	info.OrderStatus = 3
+	err = tx.Updates(info).Error
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"code":    -1,
+			"error":   err.Error(),
+			"message": "订单完成失败",
+		})
+		return
+	}
+
+	userInfo, _ := models.GetUserInfo(receiverId)
+	userInfo.FinishNum++
+	err = models.DB.Model(new(models.UserList)).Where("identity = ?", receiverId).Updates(userInfo).Error
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"code":    -1,
+			"error":   err.Error(),
+			"message": "订单完成失败",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"message": "订单完成",
+	})
+}
+
+// @Tags 快递订单
 // @Summary 接单
 // @Description 这是一个接单接口
 // @Router /express/order [put]
@@ -19,7 +72,7 @@ import (
 // @Param receiver_id query string true "接单人 id"
 // @Produce application/json
 // @Success 200 {string} string
-func TakeOrders(c *gin.Context) {
+func TakeOrder(c *gin.Context) {
 	id := c.Query("id")
 	info := new(models.ExpressList)
 	tx := models.GetExpressDetail(id)
@@ -141,7 +194,19 @@ func CreateExpress(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"code":    -1,
-			"message": "Express Create Error:" + err.Error(),
+			"error":   err.Error(),
+			"message": "新增订单失败",
+		})
+		return
+	}
+	userInfo, _ := models.GetUserInfo(CreateId)
+	userInfo.SubmitNum++
+	err = models.DB.Model(new(models.UserList)).Where("identity = ?", CreateId).Updates(userInfo).Error
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"code":    -1,
+			"error":   err.Error(),
+			"message": "新增订单失败",
 		})
 		return
 	}

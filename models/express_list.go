@@ -17,6 +17,7 @@ type ExpressList struct {
 	ReceiverId  string `gorm:"column:receiver_id;type:varchar(255);" json:"receiver_id"`   // 接单人 id
 	CreateId    string `gorm:"column:create_id;type:varchar(255);" json:"create_id"`       // 创建人 id
 	CreateImg   string `gorm:"column:create_img;type:varchar(255);" json:"create_img"`     // 创建人头像
+	OrderStatus int    `gorm:"column:order_status;type:tinyint(1);" json:"order_status"`   // 订单状态 0 - 未接单  1 - 已完成  2 - 已接单
 }
 
 func GetExpressDetail(id string) *gorm.DB {
