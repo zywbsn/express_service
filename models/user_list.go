@@ -17,6 +17,21 @@ type UserList struct {
 	SubmitNum int64  `gorm:"column:submit_num;type:int(11);" json:"submit_num"`
 }
 
+// 获取用户姓名
+func GetName(identity string) string {
+	if identity != "" {
+		info, _ := GetUserInfo(identity)
+		return info.Name
+	}
+	return ""
+}
+
+// 获取用户头像
+func GetImage(identity string) string {
+	info, _ := GetUserInfo(identity)
+	return info.AvatarUrl
+}
+
 // 获取个人信息
 func GetUserInfo(identity string) (info *UserList, err error) {
 	info = new(UserList)

@@ -13,17 +13,17 @@ import (
 
 // @Tags 快递订单
 // @Summary 完成订单
-// @Description 这是一个完成订单接口
+// @Description 完成订单接口 - 传入接单人 identity 为完成订单 传入创建人 identity 为收货
 // @Router /express/finish [put]
 // @Param id query string true "订单 id"
-// @Param receiver_id query string true "接单人 id"
+// @Param identity query string true "用户唯一标识"
 // @Produce application/json
 // @Success 200 {string} string
 func FinishOrder(c *gin.Context) {
 	id := c.Query("id")
-	receiverId := c.Query("receiver_id")
+	identity := c.Query("identity")
 	info := new(models.ExpressList)
-	tx := models.DB.Model(new(models.ExpressList)).Where("id = ? and receiver_id = ?", id, receiverId)
+	tx := models.DB.Model(new(models.ExpressList)).Where("id = ?", id)
 	err := tx.First(&info).Error
 
 	if err == gorm.ErrRecordNotFound {
@@ -35,33 +35,70 @@ func FinishOrder(c *gin.Context) {
 		return
 	}
 
-	info.OrderStatus = 3
-	err = tx.Updates(info).Error
-	if err != nil {
+	// 收货逻辑
+	if info.CreateId == identity {
+		if info.OrderStatus != 1 {
+			c.JSON(http.StatusOK, gin.H{
+				"code":    -1,
+				"message": "该订单未完成",
+			})
+			return
+		}
+		info.OrderStatus = 3
+		err = tx.Updates(info).Error
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"code":    -1,
+				"error":   err.Error(),
+				"message": "确认收货失败",
+			})
+			return
+		}
 		c.JSON(http.StatusOK, gin.H{
-			"code":    -1,
-			"error":   err.Error(),
-			"message": "订单完成失败",
+			"code":    200,
+			"message": "收货成功",
 		})
 		return
 	}
 
-	userInfo, _ := models.GetUserInfo(receiverId)
-	userInfo.FinishNum++
-	err = models.DB.Model(new(models.UserList)).Where("identity = ?", receiverId).Updates(userInfo).Error
-	if err != nil {
+	// 完成订单逻辑
+	if info.ReceiverId == identity {
+		if info.OrderStatus != 2 {
+			c.JSON(http.StatusOK, gin.H{
+				"code":    -1,
+				"message": "参数错误",
+			})
+			return
+		}
+		info.OrderStatus = 1
+		err = tx.Updates(info).Error
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"code":    -1,
+				"error":   err.Error(),
+				"message": "订单完成失败",
+			})
+			return
+		}
+
+		userInfo, _ := models.GetUserInfo(identity)
+		userInfo.FinishNum++
+		err = models.DB.Model(new(models.UserList)).Where("identity = ?", identity).Updates(userInfo).Error
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"code":    -1,
+				"error":   err.Error(),
+				"message": "订单完成失败",
+			})
+			return
+		}
+
 		c.JSON(http.StatusOK, gin.H{
-			"code":    -1,
-			"error":   err.Error(),
-			"message": "订单完成失败",
+			"code":    200,
+			"message": "订单完成",
 		})
-		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"code":    200,
-		"message": "订单完成",
-	})
 }
 
 // @Tags 快递订单
@@ -70,6 +107,7 @@ func FinishOrder(c *gin.Context) {
 // @Router /express/order [put]
 // @Param id query string true "订单 id"
 // @Param receiver_id query string true "接单人 id"
+// @Param receiver_phone query string true "接单人手机号码"
 // @Produce application/json
 // @Success 200 {string} string
 func TakeOrder(c *gin.Context) {
@@ -95,6 +133,7 @@ func TakeOrder(c *gin.Context) {
 	}
 
 	receiverId := c.Query("receiver_id")
+
 	_, err = models.GetUserInfo(receiverId)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -104,9 +143,18 @@ func TakeOrder(c *gin.Context) {
 		})
 		return
 	}
+	if info.CreateId == receiverId {
+		c.JSON(http.StatusOK, gin.H{
+			"code":    -1,
+			"message": "当前用户为创建人",
+		})
+		return
+	}
 
 	info.Status = 1
 	info.ReceiverId = receiverId
+	info.OrderStatus = 2
+	info.ReceiverPhone = c.Query("receiver_phone")
 
 	err = tx.Updates(info).Error
 	if err != nil {
@@ -149,9 +197,9 @@ func GetExpressDetail(c *gin.Context) {
 		})
 		return
 	}
-	info.CreateBy = GetName(info.CreateId)
-	info.CreateImg = GetImage(info.CreateId)
-	info.Receiver = GetName(info.ReceiverId)
+	info.CreateBy = models.GetName(info.CreateId)
+	info.CreateImg = models.GetImage(info.CreateId)
+	info.Receiver = models.GetName(info.ReceiverId)
 	c.JSON(http.StatusOK, gin.H{
 		"code": 200,
 		"data": map[string]interface{}{
@@ -170,6 +218,7 @@ func GetExpressDetail(c *gin.Context) {
 // @Param price formData string true "订单费用"
 // @Param receive_code formData string true "取件码"
 // @Param create_id formData string true "创建人 id"
+// @Param create_phone formData string true "创建人手机号"
 // @Produce application/json
 // @Success 200 {string} string
 func CreateExpress(c *gin.Context) {
@@ -179,16 +228,18 @@ func CreateExpress(c *gin.Context) {
 	Price, _ := strconv.Atoi(c.PostForm("price"))
 	ReceiveCode := c.PostForm("receive_code")
 	CreateId := c.PostForm("create_id")
+	CreatePhone := c.PostForm("create_phone")
 
 	data := &models.ExpressList{
-		CreateBy:    GetName(CreateId),
+		CreateBy:    models.GetName(CreateId),
 		Code:        Code,
 		Address:     Address,
 		ReceiveDate: ReceiveDate,
 		Price:       Price,
 		ReceiveCode: ReceiveCode,
 		CreateId:    CreateId,
-		CreateImg:   GetImage(CreateId),
+		CreateImg:   models.GetImage(CreateId),
+		CreatePhone: CreatePhone,
 	}
 	err := models.DB.Create(data).Error
 	if err != nil {
@@ -250,11 +301,9 @@ func GetExpressList(c *gin.Context) {
 
 	// 动态创建人和接单人姓名
 	for i := 0; i < len(list); i++ {
-		if list[i].ReceiverId != "" {
-			list[i].Receiver = GetName(list[i].ReceiverId)
-		}
-		list[i].CreateBy = GetName(list[i].CreateId)
-		list[i].CreateImg = GetImage(list[i].CreateId)
+		list[i].Receiver = models.GetName(list[i].ReceiverId)
+		list[i].CreateBy = models.GetName(list[i].CreateId)
+		list[i].CreateImg = models.GetImage(list[i].CreateId)
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -264,16 +313,4 @@ func GetExpressList(c *gin.Context) {
 			"count": count,
 		},
 	})
-}
-
-func GetName(identity string) string {
-	// if identity != "" {
-	info, _ := models.GetUserInfo(identity)
-	return info.Name
-	// }
-	// return ""
-}
-func GetImage(identity string) string {
-	info, _ := models.GetUserInfo(identity)
-	return info.AvatarUrl
 }
