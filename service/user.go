@@ -3,6 +3,7 @@ package service
 import (
 	"encoding/json"
 	"errors"
+	"express-service/define"
 	"express-service/helper"
 	"express-service/models"
 	"fmt"
@@ -150,8 +151,8 @@ func WXLogin(code string) (*WXLoginResp, error) {
 	fmt.Printf("code:%v", code)
 	url := "https://api.weixin.qq.com/sns/jscode2session?appid=%s&secret=%s&js_code=%s&grant_type=authorization_code"
 
-	// 合成url, 这里的appId和secret是在微信公众平台上获取的
-	url = fmt.Sprintf(url, "wx0313b2058986eebe", "adae9a320e26d1cb5f85960550343711", code)
+	// 合成url, 这里的 appId 和 secret 是在微信公众平台上获取的
+	url = fmt.Sprintf(url, define.AppId, define.Secret, code)
 
 	// 创建http get请求
 	resp, err := http.Get(url)
