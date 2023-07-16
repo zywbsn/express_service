@@ -181,7 +181,7 @@ func TakeOrder(c *gin.Context) {
 // @Success 200 {string} string
 func GetExpressDetail(c *gin.Context) {
 	id := c.Query("id")
-	info := new(models.ExpressList)
+	info := new(models.ReturnExpressList)
 	err := models.DB.Where("id = ?", id).First(&info).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -231,14 +231,12 @@ func CreateExpress(c *gin.Context) {
 	CreatePhone := c.PostForm("create_phone")
 
 	data := &models.ExpressList{
-		CreateBy:    models.GetName(CreateId),
 		Code:        Code,
 		Address:     Address,
 		ReceiveDate: ReceiveDate,
 		Price:       Price,
 		ReceiveCode: ReceiveCode,
 		CreateId:    CreateId,
-		CreateImg:   models.GetImage(CreateId),
 		CreatePhone: CreatePhone,
 	}
 	err := models.DB.Create(data).Error
@@ -291,7 +289,7 @@ func GetExpressList(c *gin.Context) {
 	page = (page - 1) * size
 	var count int64
 
-	list := make([]*models.ExpressList, 0)
+	list := make([]*models.ReturnExpressList, 0)
 	tx := models.GetExpressList(status, receiverId, createId)
 	err = tx.Omit("content").Offset(page).Limit(size).Find(&list).Count(&count).Error
 	if err != nil {

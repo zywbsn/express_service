@@ -6,9 +6,7 @@ import (
 
 type ExpressList struct {
 	gorm.Model
-	CreateBy      string `gorm:"column:create_by;type:varchar(255);" json:"create_by"`           // 创建人姓名
 	CreateId      string `gorm:"column:create_id;type:varchar(255);" json:"create_id"`           // 创建人 id
-	CreateImg     string `gorm:"column:create_img;type:varchar(255);" json:"create_img"`         // 创建人头像
 	CreatePhone   string `gorm:"column:create_phone;type:varchar(255);" json:"create_phone"`     // 创建人手机号码
 	Code          string `gorm:"column:code;type:varchar(255);" json:"code"`                     // 快递单号
 	Address       string `gorm:"column:address;type:varchar(255);" json:"address"`               // 收货地址
@@ -16,10 +14,16 @@ type ExpressList struct {
 	Price         int    `gorm:"column:price;type:int(11);" json:"price"`                        // 订单费用
 	ReceiveCode   string `gorm:"column:receive_code;type:varchar(255);" json:"receive_code"`     // 取件码
 	Status        int    `gorm:"column:status;type:tinyint(1);" json:"status"`                   // 是否接单 0 - 否 1 - 是
-	Receiver      string `gorm:"column:receiver;type:varchar(255);" json:"receiver"`             // 接单人姓名
 	ReceiverId    string `gorm:"column:receiver_id;type:varchar(255);" json:"receiver_id"`       // 接单人 id
 	ReceiverPhone string `gorm:"column:receiver_phone;type:varchar(255);" json:"receiver_phone"` // 接单人手机号码
 	OrderStatus   int    `gorm:"column:order_status;type:tinyint(1);" json:"order_status"`       // 订单状态 0 - 未接单  1 - 已完成  2 - 已接单  3 - 已收货
+}
+
+type ReturnExpressList struct {
+	*ExpressList
+	CreateBy  string `json:"create_by"`  // 创建人姓名
+	CreateImg string `json:"create_img"` // 创建人头像
+	Receiver  string `json:"receiver"`   // 接单人姓名
 }
 
 func GetExpressDetail(id string) *gorm.DB {
