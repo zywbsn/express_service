@@ -75,9 +75,45 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "创建人头像",
-                        "name": "create_img",
+                        "description": "创建人手机号",
+                        "name": "create_phone",
                         "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/express/finish": {
+            "put": {
+                "description": "完成订单接口 - 传入接单人 identity 为完成订单 传入创建人 identity 为收货",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "快递订单"
+                ],
+                "summary": "完成订单",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "订单 id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户唯一标识",
+                        "name": "identity",
+                        "in": "query",
                         "required": true
                     }
                 ],
@@ -198,6 +234,13 @@ const docTemplate = `{
                         "name": "receiver_id",
                         "in": "query",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "接单人手机号码",
+                        "name": "receiver_phone",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -256,6 +299,69 @@ const docTemplate = `{
                         "name": "identity",
                         "in": "query",
                         "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "修改用户信息接口",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户"
+                ],
+                "summary": "修改用户信息",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户唯一标识",
+                        "name": "identity",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "头像",
+                        "name": "avatar_url",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "电子邮箱",
+                        "name": "mail",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "昵称",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "手机号码",
+                        "name": "phone",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "账户",
+                        "name": "user_name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "密码",
+                        "name": "password",
+                        "in": "query"
                     }
                 ],
                 "responses": {

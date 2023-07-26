@@ -20,8 +20,8 @@ import (
 // @Produce application/json
 // @Success 200 {string} string
 func FinishOrder(c *gin.Context) {
-	id := c.Query("id")
-	identity := c.Query("identity")
+	id := c.PostForm("id")
+	identity := c.PostForm("identity")
 	info := new(models.ExpressList)
 	tx := models.DB.Model(new(models.ExpressList)).Where("id = ?", id)
 	err := tx.First(&info).Error
@@ -111,7 +111,8 @@ func FinishOrder(c *gin.Context) {
 // @Produce application/json
 // @Success 200 {string} string
 func TakeOrder(c *gin.Context) {
-	id := c.Query("id")
+	id := c.PostForm("id")
+	fmt.Println("id", id)
 	info := new(models.ExpressList)
 	tx := models.GetExpressDetail(id)
 	err := tx.First(&info).Error
@@ -132,9 +133,9 @@ func TakeOrder(c *gin.Context) {
 		return
 	}
 
-	receiverId := c.Query("receiver_id")
+	receiverId := c.PostForm("receiver_id")
 
-	_, err = models.GetUserInfo(receiverId)
+	userInfo, err := models.GetUserInfo(receiverId)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"code":    -1,
@@ -167,8 +168,11 @@ func TakeOrder(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"code":    200,
-		"message": "接单成功",
+		"code": 200,
+		"data": map[string]interface{}{
+			"message": "接单成功",
+			"info":    userInfo,
+		},
 	})
 }
 
@@ -202,9 +206,7 @@ func GetExpressDetail(c *gin.Context) {
 	info.Receiver = models.GetName(info.ReceiverId)
 	c.JSON(http.StatusOK, gin.H{
 		"code": 200,
-		"data": map[string]interface{}{
-			"data": info,
-		},
+		"data": info,
 	})
 }
 
@@ -277,6 +279,7 @@ func CreateExpress(c *gin.Context) {
 // @Produce application/json
 // @Success 200 {string} string
 func GetExpressList(c *gin.Context) {
+	fmt.Println("GetExpressListGetExpressList")
 	size, _ := strconv.Atoi(c.DefaultQuery("size", define.DefaultSize))
 	page, err := strconv.Atoi(c.DefaultQuery("page", define.DefaultPage))
 	if err != nil {

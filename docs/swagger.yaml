@@ -42,9 +42,9 @@ paths:
         name: create_id
         required: true
         type: string
-      - description: 创建人头像
+      - description: 创建人手机号
         in: formData
-        name: create_img
+        name: create_phone
         required: true
         type: string
       produces:
@@ -55,6 +55,30 @@ paths:
           schema:
             type: string
       summary: 新增订单
+      tags:
+      - 快递订单
+  /express/finish:
+    put:
+      description: 完成订单接口 - 传入接单人 identity 为完成订单 传入创建人 identity 为收货
+      parameters:
+      - description: 订单 id
+        in: query
+        name: id
+        required: true
+        type: string
+      - description: 用户唯一标识
+        in: query
+        name: identity
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: 完成订单
       tags:
       - 快递订单
   /express/info:
@@ -126,6 +150,11 @@ paths:
         name: receiver_id
         required: true
         type: string
+      - description: 接单人手机号码
+        in: query
+        name: receiver_phone
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -172,6 +201,48 @@ paths:
           schema:
             type: string
       summary: 用户详情
+      tags:
+      - 用户
+    put:
+      description: 修改用户信息接口
+      parameters:
+      - description: 用户唯一标识
+        in: query
+        name: identity
+        required: true
+        type: string
+      - description: 头像
+        in: query
+        name: avatar_url
+        type: string
+      - description: 电子邮箱
+        in: query
+        name: mail
+        type: string
+      - description: 昵称
+        in: query
+        name: name
+        type: string
+      - description: 手机号码
+        in: query
+        name: phone
+        type: string
+      - description: 账户
+        in: query
+        name: user_name
+        type: string
+      - description: 密码
+        in: query
+        name: password
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: 修改用户信息
       tags:
       - 用户
   /user/login:
