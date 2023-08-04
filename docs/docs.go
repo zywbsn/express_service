@@ -79,6 +79,13 @@ const docTemplate = `{
                         "name": "create_phone",
                         "in": "formData",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "商品图片",
+                        "name": "good_img",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {

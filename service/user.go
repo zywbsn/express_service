@@ -89,6 +89,45 @@ func GetUserInfo(c *gin.Context) {
 // @Tags 用户
 // @Summary 用户登录
 // @Description 用户登录接口
+// @Router /admin/login [post]
+// @Param code formData  string true "username"
+// @Param name formData  string true "username"
+// @Produce application/json
+// @Success 200 {string} string
+func AdminLogin(c *gin.Context) {
+	username := c.PostForm("user_name")
+	password := c.PostForm("password")
+	fmt.Println(username)
+	data := new(models.UserList)
+	err := models.DB.Where("user_name = ?", username).First(&data).Error
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"code":    500,
+			"error":   err.Error(),
+			"message": "该用户不存在",
+		})
+		return
+	}
+	if password != data.Password {
+		c.JSON(http.StatusOK, gin.H{
+			"code":    500,
+			"message": "账号密码错误",
+		})
+		return
+	}
+	token, _ := helper.GenerateToken(data.Identity)
+
+	c.JSON(http.StatusOK, gin.H{
+		"code":    http.StatusOK,
+		"message": "登陆成功",
+		"info":    data,
+		"token":   token,
+	})
+}
+
+// @Tags 用户
+// @Summary 用户登录
+// @Description 用户登录接口
 // @Router /user/login [post]
 // @Param code formData  string true "code"
 // @Param name formData  string true "名字"

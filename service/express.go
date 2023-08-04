@@ -202,7 +202,6 @@ func GetExpressDetail(c *gin.Context) {
 		return
 	}
 	info.CreateBy = models.GetName(info.CreateId)
-	info.CreateImg = models.GetImage(info.CreateId)
 	info.Receiver = models.GetName(info.ReceiverId)
 	c.JSON(http.StatusOK, gin.H{
 		"code": 200,
@@ -221,16 +220,18 @@ func GetExpressDetail(c *gin.Context) {
 // @Param receive_code formData string true "取件码"
 // @Param create_id formData string true "创建人 id"
 // @Param create_phone formData string true "创建人手机号"
+// @Param good_img formData string true "商品图片"
 // @Produce application/json
 // @Success 200 {string} string
 func CreateExpress(c *gin.Context) {
 	Code := c.PostForm("code")
 	Address := c.PostForm("address")
 	ReceiveDate := c.PostForm("receive_date")
-	Price, _ := strconv.Atoi(c.PostForm("price"))
+	Price := c.PostForm("price")
 	ReceiveCode := c.PostForm("receive_code")
 	CreateId := c.PostForm("create_id")
 	CreatePhone := c.PostForm("create_phone")
+	GoodImg := c.PostForm("good_img")
 
 	data := &models.ExpressList{
 		Code:        Code,
@@ -240,6 +241,7 @@ func CreateExpress(c *gin.Context) {
 		ReceiveCode: ReceiveCode,
 		CreateId:    CreateId,
 		CreatePhone: CreatePhone,
+		GoodImg:     GoodImg,
 	}
 	err := models.DB.Create(data).Error
 	if err != nil {
@@ -279,7 +281,6 @@ func CreateExpress(c *gin.Context) {
 // @Produce application/json
 // @Success 200 {string} string
 func GetExpressList(c *gin.Context) {
-	fmt.Println("GetExpressListGetExpressList")
 	size, _ := strconv.Atoi(c.DefaultQuery("size", define.DefaultSize))
 	page, err := strconv.Atoi(c.DefaultQuery("page", define.DefaultPage))
 	if err != nil {
@@ -304,7 +305,6 @@ func GetExpressList(c *gin.Context) {
 	for i := 0; i < len(list); i++ {
 		list[i].Receiver = models.GetName(list[i].ReceiverId)
 		list[i].CreateBy = models.GetName(list[i].CreateId)
-		list[i].CreateImg = models.GetImage(list[i].CreateId)
 	}
 
 	c.JSON(http.StatusOK, gin.H{

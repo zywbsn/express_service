@@ -9,6 +9,9 @@ func Router() *gin.Engine {
 	r := gin.Default()
 	apiGroup := r.Group("/api")
 	{
+		/* ----- 后台管理 ----- */
+		apiGroup.POST("/admin/login", service.AdminLogin)
+		/* ----- 后台管理 ----- */
 		/* ----- 订单相关路由组 ----- */
 		expressGroup := apiGroup.Group("/express")
 		{

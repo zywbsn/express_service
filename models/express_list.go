@@ -8,10 +8,11 @@ type ExpressList struct {
 	gorm.Model
 	CreateId      string `gorm:"column:create_id;type:varchar(255);" json:"create_id"`           // 创建人 id
 	CreatePhone   string `gorm:"column:create_phone;type:varchar(255);" json:"create_phone"`     // 创建人手机号码
+	GoodImg       string `gorm:"column:good_img;type:varchar(255)" json:"good_img"`              // 商品图片
 	Code          string `gorm:"column:code;type:varchar(255);" json:"code"`                     // 快递单号
 	Address       string `gorm:"column:address;type:varchar(255);" json:"address"`               // 收货地址
 	ReceiveDate   string `gorm:"column:receive_date;type:varchar(255);" json:"receive_date"`     // 收货日期
-	Price         int    `gorm:"column:price;type:int(11);" json:"price"`                        // 订单费用
+	Price         string `gorm:"column:price;type:varchar(255);" json:"price"`                   // 订单费用
 	ReceiveCode   string `gorm:"column:receive_code;type:varchar(255);" json:"receive_code"`     // 取件码
 	Status        int    `gorm:"column:status;type:tinyint(1);" json:"status"`                   // 是否接单 0 - 否 1 - 是
 	ReceiverId    string `gorm:"column:receiver_id;type:varchar(255);" json:"receiver_id"`       // 接单人 id

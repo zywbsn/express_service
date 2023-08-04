@@ -47,6 +47,11 @@ paths:
         name: create_phone
         required: true
         type: string
+      - description: 商品图片
+        in: formData
+        name: good_img
+        required: true
+        type: string
       produces:
       - application/json
       responses:
